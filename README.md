@@ -13,7 +13,7 @@ Starting the server
 
 To start the server run `node index.js` in the main directory of this
 repository. Check with your motion caption software whether the UDP port is
-correct.
+correct. If it's not, change it in `index.js`.
 
 Controlling drones
 ------------------
@@ -24,6 +24,12 @@ can manually control a drone with <kbd>W</kbd>, <kbd>A</kbd>, <kbd>S</kbd> and
 and <kbd>E</kbd> for rotating the drone and <kbd>Up</kbd> and <kbd>Down</kbd>
 to move the drone, well, up and down. Clicking the car icon will let the
 program control the drone.
+
+
+Thoughts
+========
+[ ] It seems like `return calc || stop;` in `models/control.js`is a bad idea.
+Isn't it better to send no command instead of telling it to stop?
 
 
 Attributions
