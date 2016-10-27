@@ -23,16 +23,14 @@ var GetRequiredVelocity = function(distance, threshhold, max_speed) {
         return max_speed * Math.abs(distance) * distance / Math.pow(threshhold, 2);
 }
 
-var fs = require('fs');
-var fd = fs.openSync('log.log', 'w');
+// var fs = require('fs');
+// var fd = fs.openSync('log.log', 'w');
 var Algorithm_Squared = function(params, drone, target, mocap){
     var axes = ["x", "y", "z"];
     var result = {vYaw: mocap.p.yaw};
-    fs.write(fd, 'x' + mocap.v['x'] + '\n');
-    fs.write(fd, 'y' + mocap.v['y'] + '\n');
-    fs.write(fd, 'z' + mocap.v['z'] + '\n');
     for (var i = 0; i < axes.length; i++) {
         var axis = axes[i];
+        // fs.write(fd, axis + mocap.v[axis] + '\n');
         distance = target[axis] - mocap.p[axis];
         var reqV = GetRequiredVelocity(distance, params.threshhold.val * 100, params.max_speed.val / 10);
         result["v" + axis] = GetControlVelocity(reqV, mocap.v[axis], params.speed_factor.val / 10);
