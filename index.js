@@ -46,6 +46,8 @@ var control = require('./models/control.js');
 
 var views = require('./models/views.js');
 views.app.listen(WEB_PORT);
+console.log('Web server listening on localhost:' + WEB_PORT);
+
 
 // Changes drone state
 views.app.io.route('Update_DroneState', function(req) {
