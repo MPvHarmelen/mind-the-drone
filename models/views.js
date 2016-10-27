@@ -27,7 +27,7 @@ var sent_last;
 //   res.render('control', control_last);
 // })
 
-app.get('/overview', function(req, res) {
+app.get('/', function(req, res) {
   res.render('overview', sent_last);
 })
 
