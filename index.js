@@ -4,7 +4,8 @@
 var CURRENT_BASE_IP = '192.168.1.21';
 var CONTROL_UP_SPEED = 2000;
 var MULTICAST_INTERFACE = '239.255.42.99';
-var PORT = 1511;
+var MOCAP_PORT = 1511;
+var WEB_PORT = 3000;
 var SAFETY_TIMEOUT = 5 // time in seconds
 
 // Globals
@@ -23,9 +24,7 @@ flock.init([4], CURRENT_BASE_IP);
 //////////////////////////////////////////////////////////////////////////////////
 
 var mocap = require('./models/mocap.js');
-
-// mocap.start('22223', '192.168.1.3');
-mocap.start(PORT, MULTICAST_INTERFACE);
+mocap.start(MOCAP_PORT, MULTICAST_INTERFACE);
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +45,7 @@ var control = require('./models/control.js');
 //////////////////////////////////////////////////////////////////////////////////
 
 var views = require('./models/views.js');
+views.app.listen(WEB_PORT);
 
 // Changes drone state
 views.app.io.route('Update_DroneState', function(req) {

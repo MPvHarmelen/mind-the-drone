@@ -31,23 +31,6 @@ app.get('/overview', function(req, res) {
   res.render('overview', sent_last);
 })
 
-
-
-
-// app.get('')
-
-// // Broadcast all draw clicks.
-// app.io.route('drawClick', function(req) {
-//     req.io.broadcast('draw', req.data)
-// })
-// app.get('/draw', function(req, res) {
-//     res.render('draw', {});
-// })
-
-app.listen(3000)
-
-
-
 var GetTargetPositionDif = function(p, target){ 
   var difX = Math.abs(Math.pow(p.x,2) - Math.pow(target.x,2));
   var difY = Math.pow(Math.pow(p.y,2) - Math.pow(target.y,2));
