@@ -175,6 +175,10 @@ var CreateDroneList = function (data){
   // console.log(lst)
 }
 
+// The next part is quite messy. It's this messy because the list of drones
+// must be created on the first message, and then kept the same.
+// This means the first api.on('message', function) call unsets itself and
+// adds api.on('message', on_message)
 var on_message = function(raw_data, remote) {
   // DEPRICATED // TODO: Better to look at frame rate instead of us.now(), this has 10% error
   var data = optirx.unpack(raw_data);
