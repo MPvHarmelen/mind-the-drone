@@ -28,17 +28,27 @@ program control the drone.
 
 To-Do
 =====
-[ ] don't hard code states in models/views.js:75-84
-[ ] look at `sent_last` in models/views.js:16
-[ ] add recover button
-[ ] `|| true` ?! in flock.js:143
+    [ ] don't hard code states in models/views.js:75-84
+    [ ] look at `sent_last` in models/views.js:16
+    [ ] add recover button
+    [ ] `|| true` ?! in flock.js:143
 
 
 Thoughts
 ========
-[ ] It seems like `return calc || stop;` in `models/control.js`is a bad idea.
-Isn't it better to send no command instead of telling it to stop?
-
+    [ ] It seems like `return calc || stop;` in `models/control.js`is a bad idea.
+    Isn't it better to send no command instead of telling it to stop?
+    [ ] We could listen for commands coming from the view (separately from commands
+        coming from the EEG)? The view then just flips a boolean that is checked
+        by the EEG.
+    [ ] A second command executed before the first finished breaks things. Solutions:
+        [ ] Save a boolean in the `state` of a drone showing whether it's already
+            obeying a command. If it is, the current command is ignored.
+        [ ] Save a queue somewhere. Every executed command is added to the
+            queue and the drone (magically?) executes all commands in the
+            queue.
+        [ ] Save the end of the last command as a time stamp in the state of a
+            drone and have `ExecuteCommand` start the command at that moment.
 
 Attributions
 ============
