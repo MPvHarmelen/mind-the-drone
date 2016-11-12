@@ -1,7 +1,7 @@
 'use strict'
 
 // Constants
-var CURRENT_BASE_IP = '192.168.1.21';
+var CURRENT_BASE_IP = '192.168.1.';
 var CONTROL_UP_SPEED = 2000;
 var MULTICAST_INTERFACE = '239.255.42.99';
 var MOCAP_PORT = 1511;
@@ -17,7 +17,7 @@ var SAFETY_TIMEOUT = 5 // time in seconds
 
 var flock = require('./models/flock.js');
 
-flock.init([4], CURRENT_BASE_IP);
+flock.init([1], CURRENT_BASE_IP);
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// MOCAP //////////////////////////////////////////
