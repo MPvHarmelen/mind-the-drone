@@ -1,0 +1,203 @@
+<html>
+<head>
+    <title>Overview of current drones</title>
+    <link rel="stylesheet" type="text/css" href="/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    
+    <style>
+
+        div.col-drone { border: 1px solid #eee; }
+
+        div.col-drone td i { margin-top: 3px;}
+        div.col-drone td span.description { display: none;}
+        div.col-drone:hover td span.description { display: block;}
+
+        div.col-drone td span.pull-right span { min-width: 50px; text-align: right; display: block; float: left; }
+
+    </style>
+</head>
+
+<body>
+    <div class="hidden col-xs-12">
+        <h1>Drone overview page</h1>
+    </div>
+    {{#lstDrone}}
+    <div id="DN_drone_{{id}}" class="col-drone col-xs-3">
+        <h2>
+            <i class="fa fa-plane"></i>
+            <span class="pull-right">Drone {{id}}</span>  
+        </h2>
+        <div class='row'>
+            <table class="table">
+                <tbody>
+                    {{#show}}
+                    <tr>
+                        <td class='show_{{name}} danger' title='{{title}}'>
+                            <i class='fa pull-left fa-fw fa-{{icon}}'></i>
+                            <span class='pull-left description'> {{title}}</span>
+                            <span class='pull-right'></span>
+                        </td>
+                    </tr>
+                    {{/show}}
+                </tbody>
+            </table>
+            <table class="table table-bordered text-center">
+                <tbody>
+                    <tr>
+                        {{#state_0}}
+                        <td class='doToggle doToggle_{{id}}_{{name}} {{value}}' title='{{title}}'>
+                            <i class='fa fa-fw fa-2x fa-{{icon}}'></i>
+                        </td>
+                        {{/state_0}}
+                    </tr>
+                    <tr>
+                        {{#state_1}}
+                        <td class='doToggle doToggle_{{id}}_{{name}} {{value}}' title='{{title}}'>
+                            <i class='fa fa-fw fa-2x fa-{{icon}}'></i>
+                        </td>
+                        {{/state_1}}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/lstDrone}}
+
+    <div class="col-xs-12">
+        
+        <div class="row">
+            <div class="col-xs-12">
+                
+                
+            </div>
+            <table class="table table-bordered table-fixed-with">
+                <tr>
+                    <td colspan="999"><strong>Set control params</strong></td>
+                </tr>
+                {{#control.Param}}
+                <tr>
+                    <td class="col-xs-4"><h4>{{lbl}}</h4></td>
+                    <td class="col-xs-8"><input id="id{{key}}" class="slider" type="range" name="Control_{{key}}" value="{{val}}" min="{{min}}" max="{{max}}" data-show-value="true"></td>
+                </tr>
+                {{/control.Param}}
+
+
+            </table>
+        </div>
+
+    </div>
+
+      
+</div>
+</body>
+
+<script src="/libs/jquery/jquery.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src="/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    $(document).ready(function() {
+
+        App = {}
+        App.socket = io.connect()
+        
+        App.Update = function(data) {
+
+            data.control.Param.forEach(function(param) {
+                var dronePar = $('input#id' + param.key);
+                dronePar.attr('value', param.val);
+            });
+            
+            data.drones.lstDrone.forEach(function(drone) {
+                var droneCol = $('#DN_drone_' + drone.id);
+                drone.show.forEach(function(item) {
+                    
+                    if(item.value === null) return;
+
+                    var field = $(droneCol).find('td.show_' + item.name + ' span.pull-right');
+                    if(typeof item.value === 'object') {
+                        field.html('<span>' + item.value.join('</span><span>') + '</span>')
+                    }
+                    else {
+                        field.html(item.value)
+                    } 
+                })
+
+                var setState = function(item) {
+                    $(droneCol).find('td.doToggle_' + drone.id + '_' + item.name)
+                        .removeClass('success')
+                        .removeClass('danger')
+                        .addClass(item.value);
+                        //console.log(drone.id + 'item name ' + item.name + ' has value ' + item.value)
+                }
+                drone.state_0.forEach(setState)
+                drone.state_1.forEach(setState)
+            })
+
+            // console.log('Display is being updated!');
+            // console.log(data)
+        }
+
+        // Basic socket communication
+        App.socket.on('Update_Display', App.Update); 
+
+        $('.col-drone .doToggle').on('click', function(e) {
+            var split = e.currentTarget.classList[1].split('_'); 
+            App.socket.emit('Update_DroneState', {
+                id: split[1],
+                state: split[2]
+            }) 
+        })
+
+        $( " input " ).bind( "change", function(event, ui) {
+            App.socket.emit('Set_DroneControl', {
+                target: event.currentTarget.name.replace('Control_', ''),
+                value: parseFloat(event.currentTarget.value) 
+            });
+        });
+
+        App.control = { vx: 0, vy: 0, vz: 0, vr: 0 };
+        
+        // Set controls of drone
+        $(document).on('keydown', function(keyEvent) { updateMove(keyEvent, 'down') });
+        $(document).on('keyup', function(keyEvent) { updateMove(keyEvent, 'up') });
+
+        var downKey = {};
+        var updateMove = function(keyEvent, keyUpDown) {
+
+            var mult = 0;
+            //console.log(keyEvent.which)
+            if(keyUpDown === 'down') mult = 0.6;
+            if(keyUpDown === 'up') mult = 0;
+
+            if (false) {}
+
+            else if(keyEvent.which == '38' /* up  */) App.control.vz = mult * 1;
+            else if(keyEvent.which == '40' /* dwn */) App.control.vz = mult * -1;
+
+            else if(keyEvent.which == '65' /* lft */) App.control.vy = mult * 1;
+            else if(keyEvent.which == '68' /* rgt */) App.control.vy = mult * -1;
+
+            else if(keyEvent.which == '87' /* fwd */) App.control.vx = mult * 1;
+            else if(keyEvent.which == '83' /* bwd */) App.control.vx = mult * -1;
+
+            else if(keyEvent.which == '81' /* tlf */) App.control.vYaw = mult * -1;
+            else if(keyEvent.which == '69' /* trg */) App.control.vYaw = mult * 1;
+            else return;
+
+            keyEvent.preventDefault();
+
+            // If key is already present in downkey object don't send it to server
+            if(keyUpDown === 'down' && downKey[keyEvent.which]) return;
+
+            else if(keyUpDown === 'down') downKey[keyEvent.which] = true;
+            else if(keyUpDown === 'up') downKey[keyEvent.which] = false;
+
+            App.socket.emit('Update_DroneControl', App.control) // Broadcast draw. 
+            console.log(App.control);
+        };
+    })
+</script>
+</html>
