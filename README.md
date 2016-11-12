@@ -39,8 +39,8 @@ Thoughts
  - [ ]  It seems like `return calc || stop;` in `models/control.js`is a bad idea.
         Isn't it better to send no command instead of telling it to stop?
  - [ ]  We could listen for commands coming from the view (separately from commands
-        coming from the EEG)? The view then just flips a boolean that is checked
-        by the EEG.
+        coming from the EEG)? To control whether EEG commands are executed, the
+        view then just flips a boolean that is checked by the EEG.
  - [ ]  A second command executed before the first finished breaks things. Solutions:
      - [ ]  Save a boolean in the `state` of a drone showing whether it's already
             obeying a command. If it is, the current command is ignored.
