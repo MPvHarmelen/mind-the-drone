@@ -196,14 +196,14 @@ module.exports = {
     if(undefined === actionDrone) return;
     else if(undefined === action) return;
 
-    else if(action === 'safeOn')    actionDrone.IsSafe()
-    else if(action === 'safeOff')   actionDrone.NotSafe()
-    else if(action === 'safeToggle')actionDrone.ToggleSafe()
+    else if(action === 'safeOn')      actionDrone.IsSafe()
+    else if(action === 'safeOff')     actionDrone.NotSafe()
+    else if(action === 'safeToggle')  actionDrone.ToggleSafe()
 
-    else if(action === 'takeoff')      actionDrone.TakeOff()
-    else if(action === 'land')         actionDrone.Land()
-    else if(action === 'autopilot')    actionDrone.Autopilot()
-    else if(action === 'control')      actionDrone.Control()
+    else if(action === 'takeoff')     actionDrone.TakeOff()
+    else if(action === 'land')        actionDrone.Land()
+    else if(action === 'autopilot')   actionDrone.Autopilot()
+    else if(action === 'control')     actionDrone.Control()
 
     console.log('Drone ' + actionDrone.id + ' (looking for ' + id + ') will perform ' + action + '!');
 
