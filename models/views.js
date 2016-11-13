@@ -2,6 +2,8 @@
 ///////////////////////////////// VIEWS /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+var DISPLAY_VELOCITY_PRECISION = 2
+
 var express = require('express.io');
 var path = require('path');
 var app = express().http().io()
@@ -9,7 +11,7 @@ var _   = require('underscore');
 
 var target = require('./target.js');
 
-var grade = 0; 
+var grade = 0;
 
 // view engine setup
 app.engine('html', require('hogan-express'));
@@ -23,11 +25,16 @@ app.get('/', function(req, res) {
   res.render('overview', sent_last);
 })
 
-var GetTargetPositionDif = function(p, target){ 
+function Format(number) {
+  var factor = Math.pow(10, DISPLAY_VELOCITY_PRECISION);
+  return Math.round(number * factor) / factor;
+}
+
+var GetTargetPositionDif = function(p, target){
   var difX = Math.abs(Math.pow(p.x,2) - Math.pow(target.x,2));
   var difY = Math.pow(Math.pow(p.y,2) - Math.pow(target.y,2));
   var difZ = Math.pow(Math.pow(p.z,2) - Math.pow(target.z,2));
-  return Math.pow(difX + difY + difZ, 0.5); 
+  return Math.pow(difX + difY + difZ, 0.5);
 }
 
 var UpdateDisplay = function(newData) {
@@ -62,18 +69,18 @@ var UpdateDisplay = function(newData) {
         },
         { name: 'EEG', icon: 'car', title: 'Speed (x, y, z, yaw)',
           value: [
-            Math.round(drone.go.autopilot.vx * 100) / 100,
-            Math.round(drone.go.autopilot.vy * 100) / 100,
-            Math.round(drone.go.autopilot.vz * 100) / 100,
-            Math.round(drone.go.autopilot.vYaw * 100) / 100,
+            Format(drone.go.autopilot.vx),
+            Format(drone.go.autopilot.vy),
+            Format(drone.go.autopilot.vz),
+            Format(drone.go.autopilot.vYaw),
           ]
         },
         { name: 'manual', icon: 'gamepad', title: 'Speed (x, y, z, yaw)',
           value: [
-            Math.round(drone.go.control.vx * 100) / 100,
-            Math.round(drone.go.control.vy * 100) / 100,
-            Math.round(drone.go.control.vz * 100) / 100,
-            Math.round(drone.go.control.vYaw * 100) / 100,
+            Format(drone.go.control.vx),
+            Format(drone.go.control.vy),
+            Format(drone.go.control.vz),
+            Format(drone.go.control.vYaw),
           ]
         },
         { name: 'connect', icon: 'refresh', title: 'Last connected',
