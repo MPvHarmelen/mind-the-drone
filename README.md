@@ -28,10 +28,17 @@ program control the drone.
 
 To-Do
 =====
- - [ ]  don't hard code states in models/views.js:75-84
+ - [X]  don't hard code states in models/views.js:75-84
  - [ ]  look at `sent_last` in models/views.js:16
  - [ ]  add recover button
+     - [ ]  add button in view
+     - [ ]  read information from `navdata` for button colour
+     - [ ]  write function that recovers drone ([docs](https://www.npmjs.com/package/ar-drone#clientdisableemergency))
+     - [ ]  make clicking button execute said function
+         - [ ]  socket listener thing (similar to index.js:52-68)
+         - [ ]  socket shouter thing (similar to views/overview.html, search for `App.socket.emit`)
  - [ ]  `|| true` ?! in flock.js:143
+ - [ ]  make 9999 look nicer models/views.js:87
 
 
 Thoughts
