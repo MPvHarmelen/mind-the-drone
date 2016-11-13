@@ -61,7 +61,7 @@ views.app.io.route('Update_DroneControl', function(req) {
 	}
 })
 
-// Changes aspects of the 
+// Changes aspects of the
 views.app.io.route('Set_DroneControl', function(req) {
 	console.log(control.Algoritm[control.Algoritm_Active]);
 	control.Algoritm[control.Algoritm_Active].Param[req.data.target].val = req.data.value;
@@ -84,7 +84,7 @@ var SendCommand = function() {
 		var current_Target = target.Get(current_Drone.id);
 		// console.log(current_Target);
 		// Current mocap contains the current velocity and location of the drone
-		var current_Mocap  = mocap.GetLastPointById(current_Drone.id)[0]; 
+		var current_Mocap  = mocap.GetLastPointById(current_Drone.id)[0];
 
 		// Save the target of the drone
 		current_Drone.go.autopilot = control.Calc(
@@ -98,37 +98,10 @@ var SendCommand = function() {
 	}
 };
 
-// Doel: Veiligheid gehele systeem checken
-// Per seconde: 1 ~ 10
-// Safety check doet verschillende checks (zoals genoemd in safety measures) indien de situatie als onveilig wordt aangekaart kan besloten worden alle drones te laten laden.
-// INPUT: TUTI
-// OUTPUT: Veiligheid situatie
-var SafetyCheck = function() {
-
-	// Connection lost make drone stop
-	SafetyCheck_CheckConnection();
-
-}
-
-var SafetyCheck_CheckConnection = function() {
-
-	// For how long does the system have to wait for safety to kick in
-	var SafetyTime = 500;
-    for(var i = mocap.lst.length; i--; ) {
-		
-    	var lastMeasured = mocap.lst[i].GetLastPoint_NotEstimated();
-		var last = mocap.lst[i].GetLastPoint();
-		if((last.t - lastMeasured.t) > SAFETY_TIMEOUT) flock.Action(mocap.lst[i].id, 'safeOff');
-
-    	// We might turn safety off somehow
-    	else {}
-    }
-}
-
 // UpdateDisplay
 // Doel: Stuurt de huidige stand van zaken naar alle clients die aan het luisteren zijn.
 // Per seconde: 10 ~ 20
-// Door update display blijft iemand die naar de monitor kijkt op de hoogte van wat er gebeurt in de computer. 
+// Door update display blijft iemand die naar de monitor kijkt op de hoogte van wat er gebeurt in de computer.
 var UpdateDisplay = function() {
 	// console.log(flock.lst);
 	// console.log(mocap.lst);
@@ -141,7 +114,7 @@ var UpdateDisplay = function() {
 
 
 // DoFunction handles two important parts of functions. The first
-// is how many times a second a function has to run. 
+// is how many times a second a function has to run.
 //
 // TODO: The second more important fact is that it checks if it has done
 // it before it starts the next.
@@ -150,5 +123,4 @@ var DoFunction = function(timesPerSecond, functionToDo) {
 }
 
 DoFunction(20, SendCommand);
-DoFunction( 1, SafetyCheck);
 DoFunction(10, UpdateDisplay);
