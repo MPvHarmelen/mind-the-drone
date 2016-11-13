@@ -111,7 +111,7 @@ Drone.prototype.Land = function() {
     this.client.land(function() {
       state.inAir = 0;
     })
-  }  
+  }
 }
 
 Drone.prototype.Control = function() {
@@ -137,10 +137,8 @@ Drone.prototype.Go = function() {
   // If drone is in air
   if(this.state.inAir !== 0 || true) {
 
-    if (false) {}
-
     // If drone is in manual mode always listen
-    else if (this.state.control === 1) go = this.go.control;
+    if (this.state.control === 1) go = this.go.control;
 
     // If drone is in safety mode don't move
     else if (this.state.safe === 0) go = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
@@ -148,32 +146,51 @@ Drone.prototype.Go = function() {
     // If drone is in autopilot mode
     else if (this.state.autopilot) go = this.go.autopilot;
 
-    // Drone isn't in any mode so don't move
+    // Drone isn't in any mode so don't move  (redundant, but doesn't brake anything?)
     else go = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
-
-    if(go.vz >= 0)       this.client.up(Math.abs(go.vz)); 
-    else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
-    
-    if(go.vy <= 0)       this.client.right(Math.abs(go.vy)); 
-    else if(go.vy > 0)   this.client.left(Math.abs(go.vy));
-    
-    if(go.vx <= 0)       this.client.back(Math.abs(go.vx)); 
-    else if(go.vx > 0)   this.client.front(Math.abs(go.vx));
-
-    if(go.vYaw >= 0)     this.client.clockwise(Math.abs(go.vYaw));  
-    else if(go.vYaw < 0) this.client.counterClockwise(Math.abs(go.vYaw));
-
-    var totalMovement = 
-      Math.abs(go.vx) + 
-      Math.abs(go.vy) + 
-      Math.abs(go.vz) + 
-      Math.abs(go.vYaw);
-
-    // console.log(go)
-    
-    if(totalMovement === 0) this.client.stop();  
-    //else console.log('MOVING!');
   }
+  this.Move(go);
+}
+
+Drone.prototype.Move = function(go) {
+  if(go.vz >= 0)       this.client.up(Math.abs(go.vz));
+  else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
+
+  if(go.vy <= 0)       this.client.right(Math.abs(go.vy));
+  else if(go.vy > 0)   this.client.left(Math.abs(go.vy));
+
+  if(go.vx <= 0)       this.client.back(Math.abs(go.vx));
+  else if(go.vx > 0)   this.client.front(Math.abs(go.vx));
+
+  if(go.vYaw >= 0)     this.client.clockwise(Math.abs(go.vYaw));
+  else if(go.vYaw < 0) this.client.counterClockwise(Math.abs(go.vYaw));
+
+  var totalMovement =
+    Math.abs(go.vx) +
+    Math.abs(go.vy) +
+    Math.abs(go.vz) +
+    Math.abs(go.vYaw);
+
+  // console.log(go)
+
+  if(totalMovement === 0) this.client.stop();
+  //else console.log('MOVING!');
+}
+
+Drone.prototype.Stop = function() {
+  this.Move({ vx: 0, vy: 0, vz: 0, vYaw: 0 });
+}
+
+
+/**
+ * NOTICE: when you're thinking about this, do check the "Thoughts" section
+ *         of README.md.
+ *
+ * Execute a command (= an object with a "velocity" and "length" attribute).
+ */
+Drone.prototype.ExecuteCommand = function(command) {
+  this.Move(command.velocity);
+  setTimeout(this.Stop, command.length);
 }
 
 module.exports = {
