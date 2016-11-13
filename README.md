@@ -36,19 +36,22 @@ To-Do
 
 Thoughts
 ========
- - [ ]  It seems like `return calc || stop;` in `models/control.js`is a bad idea.
-        Isn't it better to send no command instead of telling it to stop?
- - [ ]  We could listen for commands coming from the view (separately from commands
-        coming from the EEG)? To control whether EEG commands are executed, the
-        view then just flips a boolean that is checked by the EEG.
- - [ ]  A second command executed before the first finished breaks things. Solutions:
+ -  It seems like `return calc || stop;` in `models/control.js`is a bad idea.
+    Isn't it better to send no command instead of telling it to stop?
+ -  We could listen for commands coming from the view (separately from commands
+    coming from the EEG)? To control whether EEG commands are executed, the
+    view then just flips a boolean that is checked by the EEG.
+ -  A second command executed before the first finished breaks things. Solutions:
      - [ ]  Save a boolean in the `state` of a drone showing whether it's already
             obeying a command. If it is, the current command is ignored.
      - [ ]  Save a queue somewhere. Every executed command is added to the
             queue and the drone (magically?) executes all commands in the
             queue.
-     - [ ]  Save the end of the last command as a time stamp in the state of a
+     - [X]  Save the end of the last command as a time stamp in the state of a
             drone and have `ExecuteCommand` start the command at that moment.
+            There doesn't seem to be a "execute at time stamp" function in Node,
+            but there is a "execute after delay" function. This could be hacked
+            by correctly delaying both the start and stop messages.
 
 Attributions
 ============
