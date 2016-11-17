@@ -154,15 +154,6 @@ Drone.prototype.Go = function() {
   this.Move(go);
 }
 
-/**
- * Only move when in autopilot mode (at time of moving).
- */
-Drone.prototype.MoveAutopilot = function(go, drone_go) {
-  // console.log("MoveAutopilot: " + JSON.stringify(drone_go));
-  // console.log("MoveAutopilot: " + JSON.stringify(go));
-  drone_go.autopilot = go;
-}
-
 Drone.prototype.Move = function(go) {
   if(go.vz >= 0)       this.client.up(Math.abs(go.vz));
   else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
@@ -211,6 +202,15 @@ Drone.prototype.QueueCommand = function(command) {
     setTimeout(this.MoveAutopilot, end_delay, stop_velocity, this.go);
     this.last_command = Math.max(this.last_command, new Date().getTime()) + end_delay;
   }
+}
+
+/**
+ * Only move when in autopilot mode (at time of moving).
+ */
+Drone.prototype.MoveAutopilot = function(go, drone_go) {
+  // console.log("MoveAutopilot: " + JSON.stringify(drone_go));
+  // console.log("MoveAutopilot: " + JSON.stringify(go));
+  drone_go.autopilot = go;
 }
 
 module.exports = {
