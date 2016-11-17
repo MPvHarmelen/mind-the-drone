@@ -74,7 +74,7 @@ views.app.io.route('Set_DroneControl', function(req) {
 // SendCommand kan een nieuw commando geven op basis van verschillende modellen. Het verbeteren van deze modellen zal mogelijk een belangrijk onderdeel zijn van het succes van de show.
 // INPUT: X,Y,Z,R + vX, vY, vZ, vR Drone
 // OUTPUT: X, Y, Z, R Drone
-var SendCommand = function() {
+var GetCommand = function() {
 
 	for(var i = flock.lst.length; i--;) {
 
@@ -84,19 +84,30 @@ var SendCommand = function() {
 		var current_Target = target.Get(current_Drone.id);
 		// console.log(current_Target);
 		// Current mocap contains the current velocity and location of the drone
-		var current_Mocap  = mocap.GetLastPointById(current_Drone.id)[0];
+		// var current_Mocap  = mocap.GetLastPointById(current_Drone.id)[0];
 
 		// Save the target of the drone
-		current_Drone.go.autopilot = control.Calc(
-			current_Drone,
-			current_Target,
-			current_Mocap
-		);
+		// current_Drone.go.autopilot = control.Calc(
+		// 	current_Drone,
+		// 	current_Target,
+		// 	current_Mocap
+		// );
+
+		current_Drone.go.autopilot = current_Target
+	}
+};
+
+var SendCommand = function() {
+
+	for(var i = flock.lst.length; i--;) {
+
+		var current_Drone  = flock.lst[i];
 
 		// Send go command
 		current_Drone.Go();
 	}
 };
+
 
 // UpdateDisplay
 // Doel: Stuurt de huidige stand van zaken naar alle clients die aan het luisteren zijn.
@@ -122,5 +133,6 @@ var DoFunction = function(timesPerSecond, functionToDo) {
 	setInterval(functionToDo, Math.round(1000 / timesPerSecond));
 }
 
-DoFunction(20, SendCommand);
+DoFunction(0.5, GetCommand);
+DoFunction(10, SendCommand);
 DoFunction(10, UpdateDisplay);
