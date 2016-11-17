@@ -28,18 +28,23 @@ program control the drone.
 
 To-Do
 =====
- - [X]  don't hard code states in models/views.js:75-84
- - [ ]  look at `sent_last` in models/views.js:16
- - [ ]  add recover button
-     - [ ]  add button in view
-     - [ ]  read information from `navdata` for button colour
-     - [ ]  write function that recovers drone ([docs](https://www.npmjs.com/package/ar-drone#clientdisableemergency))
-     - [ ]  make clicking button execute said function
-         - [ ]  socket listener thing (similar to index.js:52-68)
-         - [ ]  socket shouter thing (similar to views/overview.html, search for `App.socket.emit`)
+ - [X]  Don't hard code states in models/views.js:75-84
+ - [ ]  Look at `sent_last` in models/views.js:16
+ - [ ]  Add recover button
+     - [ ]  Add button in view
+     - [ ]  Read information from `navdata` for button colour
+     - [ ]  Write function that recovers drone ([docs](https://www.npmjs.com/package/ar-drone#clientdisableemergency))
+     - [ ]  Make clicking button execute said function
+         - [ ]  Socket listener thing (similar to index.js:52-68)
+         - [ ]  Socket shouter thing (similar to views/overview.html, search for `App.socket.emit`)
  - [ ]  `|| true` ?! in flock.js:143
- - [ ]  make 9999 look nicer models/views.js:87
- - [X]  make EegCommand in target.js read json objects
+ - [ ]  Make 9999 look nicer models/views.js:87
+ - [X]  Make EegCommand in target.js read json objects
+ - [ ]  Don't pass `this.go` as an argument at models/flock.js:210, but figure
+        out why using `this` inside `MoveAutopilot` doesn't work and fix it
+        in a nicer way.
+ - [ ]  Make sure the user notices when models/target.js:14 produces a syntax error.
+ - [ ]  Remove everything we aren't using.
 
 
 Thoughts
