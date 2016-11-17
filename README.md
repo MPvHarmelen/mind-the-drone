@@ -39,6 +39,7 @@ To-Do
          - [ ]  socket shouter thing (similar to views/overview.html, search for `App.socket.emit`)
  - [ ]  `|| true` ?! in flock.js:143
  - [ ]  make 9999 look nicer models/views.js:87
+ - [ ]  make EegCommand in target.js read json objects
 
 
 Thoughts
