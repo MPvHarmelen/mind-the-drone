@@ -8,23 +8,19 @@
     
     <style>
 
-        div.col-drone { border: 1px solid #eee; }
-
-        div.col-drone td i { margin-top: 3px;}
+        div.col-drone { width: 202px}
+        /*div.col-drone td i { margin-top: 3px; margin-bottom: 5px;}*/
         div.col-drone td span.description { display: none;}
-        div.col-drone:hover td span.description { display: block;}
+        /*div.col-drone:hover td span.description { display: block;}*/
 
-        div.col-drone td span.pull-right span { min-width: 50px; text-align: right; display: block; float: left; }
+        div.col-drone td span.pull-right span { min-width: 40px; text-align: right; display: block; float: left; }
 
     </style>
 </head>
 
 <body>
-    <div class="hidden col-xs-12">
-        <h1>Drone overview page</h1>
-    </div>
     {{#lstDrone}}
-    <div id="DN_drone_{{id}}" class="col-drone col-xs-3">
+    <div id="DN_drone_{{id}}" class="col-drone col-xs-12">
         <h2>
             <i class="fa fa-plane"></i>
             <span class="pull-right">Drone {{id}}</span>  
@@ -36,7 +32,7 @@
                     <tr>
                         <td class='show_{{name}} danger' title='{{title}}'>
                             <i class='fa pull-left fa-fw fa-{{icon}}'></i>
-                            <span class='pull-left description'> {{title}}</span>
+                            <span class='pull-left description'>{{title}}</span>
                             <span class='pull-right'></span>
                         </td>
                     </tr>

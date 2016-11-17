@@ -6,12 +6,14 @@ var ardrone = require('ar-drone');
 
 // Max vertical speed in MM/s
 var CONTROL_Z_SPEED = 2000;
-var CONTROL_MAX_HEIGHT = 5000;
+var CONTROL_MAX_HEIGHT = 3000;
 var CONTROL_MIN_HEIGHT = 50;
+var MINIMUM_DELAY = 100;
 
 
 var Drone = function(_id, base_ip) {
   this.id = _id;
+  this.last_command = new Date().getTime();
   this.state = {
     inAir: 0,
     camera: 0,
@@ -27,20 +29,20 @@ var Drone = function(_id, base_ip) {
   //  - T0 is the last point
   //  - T1 is the point before that one
   //  - TX contains a array with all points
-  this.location = { 
+  this.location = {
     t0: { x: 0, y: 0, z: 0, r: 0 },
     t1: { x: 0, y: 0, z: 0, r: 0 },
     tX: []
   };
 
-  // The navdata 
+  // The navdata
   this.navdata = {
     t0: { timestamp: new Date().getTime() },
     t1: { timestamp: new Date().getTime() },
     tX: []
   };
 
-  // The calculated 
+  // The calculated
   this.go = {
     control: { vx: 0, vy: 0, vz: 0, vYaw: 0 },
     autopilot: { vx: 0, vy: 0, vz: 0, vYaw: 0 },
@@ -55,24 +57,19 @@ var Drone = function(_id, base_ip) {
   this.client.config('control:flying_mode', 0); // Default to NOT autopilot mode
   //this.client.config('pic:ultrasound_freq', 7 + (stageListDrones.indexOf(drone._id) % 2))
   this.client.config('general:navdata_demo', 'TRUE');
-  this.client.config('general:navdata_options', 65536 + 8388608 + 67108864); 
-
-  this.client.config('control:control_vz_max', CONTROL_Z_SPEED);
-
-  //drone.this.client.config('control:altitude_min',   50)
-  //drone.this.client.config('control:altitude_max', 3000)
-
   // 1024 -> Altitude
   // 65536 -> Detect
   // 8388608 -> Wind speed
   // 67108864 -> WiFi
+  // this.client.config('general:navdata_options', 65536 + 8388608 + 67108864);
+  // this.client.config('video:codec_fps', 1);
 
-  this.client.config('video:codec_fps', 1);
-  this.client.config('control:altitude_max','3000'); // 3 meter
-  this.client.config('control:altitude_min','50'); // 5 cm
+  this.client.config('control:control_vz_max', CONTROL_Z_SPEED);
+  this.client.config('control:altitude_max', CONTROL_MAX_HEIGHT);
+  this.client.config('control:altitude_min', CONTROL_MIN_HEIGHT);
   // this.client.config('detect:detect_type', 12);  // detect roundell
 
-  this.client.animateLeds('red', 1,1);
+  // this.client.animateLeds('red', 1,1);
 
   /* Signal landed and flying events.
   this.client.on('landing', function () { });
@@ -80,8 +77,8 @@ var Drone = function(_id, base_ip) {
   this.client.on('takeoff', function() { });
   this.client.on('hovering', function() { });
   this.client.on('flying', function() { });*/
-  
-  // Save every navdata
+
+  // Save incoming navdata (keeps two most recent)
   var navdata = this.navdata;
   this.client.on('navdata', function(data) {
     navdata.t1 = navdata.t0;
@@ -116,7 +113,7 @@ Drone.prototype.Land = function() {
     this.client.land(function() {
       state.inAir = 0;
     })
-  }  
+  }
 }
 
 Drone.prototype.Control = function() {
@@ -142,10 +139,8 @@ Drone.prototype.Go = function() {
   // If drone is in air
   if(this.state.inAir !== 0 || true) {
 
-    if (false) {}
-
     // If drone is in manual mode always listen
-    else if (this.state.control === 1) go = this.go.control;
+    if (this.state.control === 1) go = this.go.control;
 
     // If drone is in safety mode don't move
     else if (this.state.safe === 0) go = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
@@ -153,31 +148,68 @@ Drone.prototype.Go = function() {
     // If drone is in autopilot mode
     else if (this.state.autopilot) go = this.go.autopilot;
 
-    // Drone isn't in any mode so don't move
+    // Drone isn't in any mode so don't move  (redundant, but doesn't brake anything?)
     else go = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
+  }
+  this.Move(go);
+}
 
-    if(go.vz >= 0)       this.client.up(Math.abs(go.vz)); 
-    else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
-    
-    if(go.vy <= 0)       this.client.right(Math.abs(go.vy)); 
-    else if(go.vy > 0)   this.client.left(Math.abs(go.vy));
-    
-    if(go.vx <= 0)       this.client.back(Math.abs(go.vx)); 
-    else if(go.vx > 0)   this.client.front(Math.abs(go.vx));
+/**
+ * Only move when in autopilot mode (at time of moving).
+ */
+Drone.prototype.AutopilotMove = function(go, drone_go) {
+  // console.log("AutopilotMove: " + JSON.stringify(drone_go));
+  // console.log("AutopilotMove: " + JSON.stringify(go));
+  drone_go.autopilot = go;
+}
 
-    if(go.vYaw >= 0)     this.client.clockwise(Math.abs(go.vYaw));  
-    else if(go.vYaw < 0) this.client.counterClockwise(Math.abs(go.vYaw));
+Drone.prototype.Move = function(go) {
+  if(go.vz >= 0)       this.client.up(Math.abs(go.vz));
+  else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
 
-    var totalMovement = 
-      Math.abs(go.vx) + 
-      Math.abs(go.vy) + 
-      Math.abs(go.vz) + 
-      Math.abs(go.vYaw);
+  if(go.vy <= 0)       this.client.right(Math.abs(go.vy));
+  else if(go.vy > 0)   this.client.left(Math.abs(go.vy));
 
-    // console.log(go)
-    
-    if(totalMovement === 0) this.client.stop();  
-    //else console.log('MOVING!');
+  if(go.vx <= 0)       this.client.back(Math.abs(go.vx));
+  else if(go.vx > 0)   this.client.front(Math.abs(go.vx));
+
+  if(go.vYaw >= 0)     this.client.clockwise(Math.abs(go.vYaw));
+  else if(go.vYaw < 0) this.client.counterClockwise(Math.abs(go.vYaw));
+
+  var totalMovement =
+    Math.abs(go.vx) +
+    Math.abs(go.vy) +
+    Math.abs(go.vz) +
+    Math.abs(go.vYaw);
+
+  // console.log(go)
+
+  if(totalMovement === 0) this.client.stop();
+  //else console.log('MOVING!');
+}
+
+// Drone.prototype.AutopilotStop = function(drone_go) {
+//   this.AutopilotMove(, drone_go);
+// }
+
+
+/**
+ * NOTICE: when you're thinking about this, do check the "Thoughts" section
+ *         of README.md.
+ *
+ * Execute a command (= an object with a "velocity" and "length" attribute).
+ */
+Drone.prototype.ExecuteCommand = function(command) {
+  if (command.length) {
+    // First initialise (for precision of delays?)
+    var start_delay, end_delay;
+    var stop_velocity = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
+    start_delay = Math.max(this.last_command - new Date().getTime(), 0);
+    end_delay = start_delay + command.length;
+    // console.log("ExecuteCommand: " + JSON.stringify(this.go));
+    setTimeout(this.AutopilotMove, start_delay, command.velocity, this.go);
+    setTimeout(this.AutopilotMove, end_delay, stop_velocity, this.go);
+    this.last_command = Math.max(this.last_command, new Date().getTime()) + end_delay;
   }
 }
 
@@ -201,14 +233,14 @@ module.exports = {
     if(undefined === actionDrone) return;
     else if(undefined === action) return;
 
-    else if(action === 'safeOn')    actionDrone.IsSafe()
-    else if(action === 'safeOff')   actionDrone.NotSafe()
-    else if(action === 'safeToggle')actionDrone.ToggleSafe()
+    else if(action === 'safeOn')      actionDrone.IsSafe()
+    else if(action === 'safeOff')     actionDrone.NotSafe()
+    else if(action === 'safeToggle')  actionDrone.ToggleSafe()
 
-    else if(action === 'takeoff')      actionDrone.TakeOff()
-    else if(action === 'land')         actionDrone.Land()
-    else if(action === 'autopilot')    actionDrone.Autopilot()
-    else if(action === 'control')      actionDrone.Control()
+    else if(action === 'takeoff')     actionDrone.TakeOff()
+    else if(action === 'land')        actionDrone.Land()
+    else if(action === 'autopilot')   actionDrone.Autopilot()
+    else if(action === 'control')     actionDrone.Control()
 
     console.log('Drone ' + actionDrone.id + ' (looking for ' + id + ') will perform ' + action + '!');
 

@@ -75,13 +75,15 @@ views.app.io.route('Set_DroneControl', function(req) {
 // INPUT: X,Y,Z,R + vX, vY, vZ, vR Drone
 // OUTPUT: X, Y, Z, R Drone
 var GetCommand = function() {
-
+	var current_Drone, command;
 	for(var i = flock.lst.length; i--;) {
 
-		var current_Drone  = flock.lst[i];
-
+		current_Drone  = flock.lst[i];
+		// console.log("Current drone: " + current_Drone);
+		// console.log("Current go: " + JSON.stringify(current_Drone.go));
+		// console.log("Current autopilot: " + current_Drone.go);
 		// Target contains the target in X,Y,Z,R the drone needs to have
-		var current_Target = target.Get(current_Drone.id);
+		command = target.Get(current_Drone.id);
 		// console.log(current_Target);
 		// Current mocap contains the current velocity and location of the drone
 		// var current_Mocap  = mocap.GetLastPointById(current_Drone.id)[0];
@@ -93,7 +95,7 @@ var GetCommand = function() {
 		// 	current_Mocap
 		// );
 
-		current_Drone.go.autopilot = current_Target
+		current_Drone.ExecuteCommand(command);
 	}
 };
 
@@ -108,33 +110,6 @@ var SendCommand = function() {
 	}
 };
 
-
-// Doel: Veiligheid gehele systeem checken
-// Per seconde: 1 ~ 10
-// Safety check doet verschillende checks (zoals genoemd in safety measures) indien de situatie als onveilig wordt aangekaart kan besloten worden alle drones te laten laden.
-// INPUT: TUTI
-// OUTPUT: Veiligheid situatie
-var SafetyCheck = function() {
-
-	// Connection lost make drone stop
-	SafetyCheck_CheckConnection();
-
-}
-
-var SafetyCheck_CheckConnection = function() {
-
-	// For how long does the system have to wait for safety to kick in
-	var SafetyTime = 500;
-    for(var i = mocap.lst.length; i--; ) {
-
-    	var lastMeasured = mocap.lst[i].GetLastPoint_NotEstimated();
-		var last = mocap.lst[i].GetLastPoint();
-		if((last.t - lastMeasured.t) > SAFETY_TIMEOUT) flock.Action(mocap.lst[i].id, 'safeOff');
-
-    	// We might turn safety off somehow
-    	else {}
-    }
-}
 
 // UpdateDisplay
 // Doel: Stuurt de huidige stand van zaken naar alle clients die aan het luisteren zijn.
@@ -160,7 +135,7 @@ var DoFunction = function(timesPerSecond, functionToDo) {
 	setInterval(functionToDo, Math.round(1000 / timesPerSecond));
 }
 
-DoFunction(0.5, GetCommand);
-DoFunction(10, SendCommand);
-DoFunction( 1, SafetyCheck);
 DoFunction(10, UpdateDisplay);
+DoFunction(10, SendCommand);
+
+DoFunction(0.5, GetCommand);
