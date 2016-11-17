@@ -11,9 +11,9 @@ var EegCommand = function(file)
     	console.log(command)
         fs.writeFileSync(file, "", 'utf8');
 
-        if (command == '1')			go.vx = 0.2;
-		else if (command == '2')	go.vy = 0.2;
-		else if (command == '3')  	go.vz = 0.2;
+        if (command == '1')			go.vx = 0.1;
+		else if (command == '2')	go.vy = 0.1;
+		else if (command == '3')  	go.vz = 0.1;
     }
 
 	return go;
