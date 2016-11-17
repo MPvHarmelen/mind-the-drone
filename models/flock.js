@@ -199,14 +199,14 @@ Drone.prototype.Move = function(go) {
  *
  * Execute a command (= an object with a "velocity" and "length" attribute).
  */
-Drone.prototype.ExecuteCommand = function(command) {
+Drone.prototype.QueueCommand = function(command) {
   if (command.length) {
     // First initialise (for precision of delays?)
     var start_delay, end_delay;
     var stop_velocity = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
     start_delay = Math.max(this.last_command - new Date().getTime(), 0);
     end_delay = start_delay + command.length;
-    // console.log("ExecuteCommand: " + JSON.stringify(this.go));
+    // console.log("QueueCommand: " + JSON.stringify(this.go));
     setTimeout(this.MoveAutopilot, start_delay, command.velocity, this.go);
     setTimeout(this.MoveAutopilot, end_delay, stop_velocity, this.go);
     this.last_command = Math.max(this.last_command, new Date().getTime()) + end_delay;

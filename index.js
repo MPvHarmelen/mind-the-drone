@@ -95,7 +95,7 @@ var GetCommand = function() {
 		// 	current_Mocap
 		// );
 
-		current_Drone.ExecuteCommand(command);
+		current_Drone.QueueCommand(command);
 	}
 };
 
