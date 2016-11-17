@@ -8,10 +8,12 @@ var ardrone = require('ar-drone');
 var CONTROL_Z_SPEED = 2000;
 var CONTROL_MAX_HEIGHT = 3000;
 var CONTROL_MIN_HEIGHT = 50;
+var MINIMUM_DELAY = 100;
 
 
 var Drone = function(_id, base_ip) {
   this.id = _id;
+  this.last_command = new Date().getTime();
   this.state = {
     inAir: 0,
     camera: 0,
@@ -152,6 +154,15 @@ Drone.prototype.Go = function() {
   this.Move(go);
 }
 
+/**
+ * Only move when in autopilot mode (at time of moving).
+ */
+Drone.prototype.AutopilotMove = function(go, drone_go) {
+  // console.log("AutopilotMove: " + JSON.stringify(drone_go));
+  // console.log("AutopilotMove: " + JSON.stringify(go));
+  drone_go.autopilot = go;
+}
+
 Drone.prototype.Move = function(go) {
   if(go.vz >= 0)       this.client.up(Math.abs(go.vz));
   else if(go.vz < 0)   this.client.down(Math.abs(go.vz));
@@ -177,9 +188,9 @@ Drone.prototype.Move = function(go) {
   //else console.log('MOVING!');
 }
 
-Drone.prototype.Stop = function() {
-  this.Move({ vx: 0, vy: 0, vz: 0, vYaw: 0 });
-}
+// Drone.prototype.AutopilotStop = function(drone_go) {
+//   this.AutopilotMove(, drone_go);
+// }
 
 
 /**
@@ -189,8 +200,17 @@ Drone.prototype.Stop = function() {
  * Execute a command (= an object with a "velocity" and "length" attribute).
  */
 Drone.prototype.ExecuteCommand = function(command) {
-  this.Move(command.velocity);
-  setTimeout(this.Stop, command.length);
+  if (command.length) {
+    // First initialise (for precision of delays?)
+    var start_delay, end_delay;
+    var stop_velocity = { vx: 0, vy: 0, vz: 0, vYaw: 0 };
+    start_delay = Math.max(this.last_command - new Date().getTime(), 0);
+    end_delay = start_delay + command.length;
+    // console.log("ExecuteCommand: " + JSON.stringify(this.go));
+    setTimeout(this.AutopilotMove, start_delay, command.velocity, this.go);
+    setTimeout(this.AutopilotMove, end_delay, stop_velocity, this.go);
+    this.last_command = Math.max(this.last_command, new Date().getTime()) + end_delay;
+  }
 }
 
 module.exports = {

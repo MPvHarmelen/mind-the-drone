@@ -1,22 +1,31 @@
-var EegCommand = function(file)
-{
-	go = { vx: 0, vy: 0, vz: 0, vYaw: 0 }
+fs = require('fs');
 
-	fs = require('fs');
+var CommandFromFile = function(file)
+{
+    var command = {
+        velocity: { vx: 0, vy: 0, vz: 0, vYaw: 0 },
+        length: 0
+    }
 
 	if (fs.existsSync( file ))
     {
-    	var command = fs.readFileSync(file,'utf8')
-    	command = command.trim()
-    	console.log(command)
-        fs.writeFileSync(file, "", 'utf8');
+        var new_command;
+        try {
+    	    new_command = JSON.parse(fs.readFileSync(file,'utf8'));
+        } catch(SyntaxError) {
+            new_command = {length: 0};
+            fs.writeFileSync(file, JSON.stringify(command), 'utf8');
+        }
+        // console.log(new_command)
 
-        if (command == '1')			go.vx = 0.2;
-		else if (command == '2')	go.vy = 0.2;
-		else if (command == '3')  	go.vz = 0.2;
+        if (new_command.length) {
+            fs.writeFileSync(file, JSON.stringify(command), 'utf8');
+            if (undefined !== new_command.velocity && undefined !== new_command.length) {}
+            command = new_command;
+        }
     }
 
-	return go;
+	return command;
 }
 
 
@@ -89,6 +98,6 @@ module.exports = {
   Get: function(id) {
 
     // return { x: 0, y: 1000, z:1700, yaw: 0 };
-    return EegCommand('eeg.txt');
+    return CommandFromFile('eeg.txt');
   },
 };
