@@ -61,7 +61,7 @@ Thoughts
             queue and the drone (magically?) executes all commands in the
             queue.~~
      - [X]  ~~Save the end of the last command as a time stamp in the state of a
-            drone and have `ExecuteCommand` start the command at that moment.
+            drone and have `QueueCommand` start the command at that moment.
             There doesn't seem to be a "execute at time stamp" function in Node,
             but there is an
             ["execute after delay"](https://nodejs.org/api/timers.html#timers_settimeout_callback_delay_args)
