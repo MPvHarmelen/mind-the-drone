@@ -7,6 +7,7 @@ var MULTICAST_INTERFACE = '239.255.42.99';
 var MOCAP_PORT = 1511;
 var WEB_PORT = 3000;
 var SAFETY_TIMEOUT = 5 // time in seconds
+var COMMAND_FILENAME = 'eeg.txt'
 
 // Globals
 // var microS = require('microseconds');
@@ -32,7 +33,7 @@ mocap.start(MOCAP_PORT, MULTICAST_INTERFACE);
 //////////////////////////////////////////////////////////////////////////////////
 
 var target = require('./models/target.js');
-
+target.SetCommandFilename(COMMAND_FILENAME)
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// TARGET //////////////////////////////////////////

@@ -1,5 +1,7 @@
 fs = require('fs');
 
+var filename;
+
 var CommandFromFile = function(file)
 {
     var command = {
@@ -16,7 +18,7 @@ var CommandFromFile = function(file)
             new_command = {length: 0};
             fs.writeFileSync(file, JSON.stringify(command), 'utf8');
         }
-        // console.log(new_command)
+        console.log(new_command)
 
         if (new_command.length) {
             fs.writeFileSync(file, JSON.stringify(command), 'utf8');
@@ -28,12 +30,18 @@ var CommandFromFile = function(file)
 	return command;
 }
 
+var SetCommandFilename = function(filname) {
+    filename = filname
+}
+
 
 module.exports = {
 
   Get: function(id) {
 
     // return { x: 0, y: 1000, z:1700, yaw: 0 };
-    return CommandFromFile('eeg.txt');
+    return CommandFromFile(filename);
   },
+
+  SetCommandFilename: SetCommandFilename,
 };
