@@ -22,7 +22,7 @@ var CommandFromFile = function(file)
 
         if (new_command.length) {
             fs.writeFileSync(file, JSON.stringify(command), 'utf8');
-            if (undefined !== new_command.velocity && undefined !== new_command.length) {}
+            // if (undefined !== new_command.velocity && undefined !== new_command.length) {}
             command = new_command;
         }
     }
